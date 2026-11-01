@@ -1,0 +1,11 @@
+# Entornos virtuales y Python
+venv/
+__pycache__/
+*.pyc
+.env
+
+# Editores
+.vscode/
+.idea/
+
+proyecto_completo.txt
