@@ -4,6 +4,7 @@
         <span class="logo-text">Biblioteca</span>
     </div>
     
+    <!-- buscador y boton de filtros para la página de búsqueda -->
     <div class="search-area" style="position: relative;">
         <div class="search-wrapper" style="flex-grow: 1; display: flex; align-items: center; position: relative;">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
@@ -24,6 +25,8 @@
                 </div>
                 <div class="filter-group">
                     <label>Categoría</label>
+
+                    <!-- categorias de libros -->
                     <select id="filterCategory" class="filter-select">
                         <option value="all">Todas</option>
                     </select>
@@ -61,9 +64,9 @@
                 <i class="fa-solid fa-chevron-down" style="font-size: 12px; margin-left: 8px; color: #64748b;"></i>
             </div>
             <div class="user-dropdown" id="userDropdown">
-                <a href="#" id="logoutBtn">
+                <span href="#" id="logoutBtn">
                     <i class="fa-solid fa-right-from-bracket" style="color: #ef4444;"></i> Cerrar Sesión
-                </a>
+                </span>
             </div>
         </div>
     </div>

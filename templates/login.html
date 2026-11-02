@@ -1,3 +1,6 @@
+<!-- Login page -->
+<!-- Este se encarga de recojer los datos de inicio de sesión -->
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,17 +9,22 @@
     <title>Acceso - Biblioteca Universitaria</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- estilos para la página de login y cache -->
     <link rel="stylesheet" href="/static/css/style.css?v=2">
 </head>
+
+<!-- contenido visual de la página de login -->
 <body class="login-body">
 
     <div class="login-container">
         <div class="login-card">
+
             <div class="login-header">
                 <i class="fa-solid fa-book-open logo-icon"></i>
                 <h1>Biblioteca</h1>
                 <p>Sistema de Gestión de Préstamos</p>
             </div>
+
 
             <form id="loginForm">
                 <div class="input-group">
@@ -25,6 +33,7 @@
                 </div>
                 <div class="input-group">
                     <label for="password">Contraseña</label>
+                    <!-- puntos de contraseña -->
                     <input type="password" id="password" placeholder="Ingresa tu contraseña" required>
                 </div>
                 
@@ -32,6 +41,7 @@
                 <div id="loginError" class="error-message"></div>
             </form>
             
+            <!-- datos de demostración perfiles -->
             <div class="login-footer">
                 <p>Demo: esteban | carlos | admin</p>
                 <p>Contraseña: password123 / admin123</p>

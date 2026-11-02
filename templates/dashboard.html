@@ -2,27 +2,31 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <!-- Adaptacion de la pantalla para diferentes dispositivos -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Nombre de la pagina web -->
     <title>Dashboard - Biblioteca</title>
+
+    <!-- Fuentes de google fonts y estilos de la pagina -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/style.css?v=1.1">
 </head>
+<!-- Clase para el cuerpo de la pagina -->
 <body class="dashboard-body">
 
-    <!-- 1. Incluimos el Header -->
     {% include 'partials/header.html' %}
-
-    <!-- 2. Contenido Principal -->
+    
+    <!-- Contenido principal de la pagina, contenedor del catalogo de libros -->
     <main class="catalog-container">
         <h2>Catálogo de Libros</h2>
         <div class="books-grid" id="booksGrid"></div>
     </main>
 
-    <!-- 3. Incluimos los Modales -->
+    <!-- Carga de los modales de la pagina -->
     {% include 'partials/modals.html' %}
 
-    <!-- 4. Llamamos al nuevo Main JS como Módulo -->
     <script type="module" src="/static/js/main.js"></script>
 </body>
 </html>
