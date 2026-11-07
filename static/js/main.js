@@ -1,17 +1,20 @@
+// main.js - Punto de entrada del Dashboard
 import { inicializarAuth } from './modules/auth.js';
 import { cargarLibros } from './modules/catalog.js';
 import { ui } from './modules/ui.js';
 import { api } from './modules/api.js';
 import { inicializarFiltros } from './modules/filters.js';
 
-// 1. Inicializar Login
+// 1. Inicializamos la autenticación (Login)
 inicializarAuth();
 
-// 2. Inicializar Dashboard
+// 2. Si estamos en el Dashboard, hacemos la magia
 if (window.location.pathname === '/dashboard') {
     const userStr = sessionStorage.getItem('user');
-    if (!userStr) { window.location.href = '/'; } 
-    else {
+    
+    if (!userStr) { 
+        window.location.href = '/'; 
+    } else {
         const currentUser = JSON.parse(userStr);
         
         document.getElementById('userName').textContent = currentUser.nombre_completo;
@@ -53,7 +56,7 @@ if (window.location.pathname === '/dashboard') {
         if(notifArea) {
             notifArea.addEventListener('click', () => {
                 ui.abrirModal('modalNotificaciones');
-                document.getElementById('notifBadge').style.display = 'none'; // Ocultar el badge
+                document.getElementById('notifBadge').style.display = 'none'; 
             });
         }
         if(closeNotif) closeNotif.addEventListener('click', () => ui.cerrarModal('modalNotificaciones'));
@@ -149,14 +152,13 @@ async function abrirAdminModal(tipo) {
                 </div>
             `;
         });
-        } else if (tipo === 'devoluciones') {
+    } else if (tipo === 'devoluciones') {
         title.textContent = 'Préstamos Activos';
         const data = await api.getAdminDevoluciones();
         content.innerHTML = data.length === 0 ? '<p>No hay libros prestados.</p>' : '';
         
         data.forEach(p => {
             const alertClass = p.alerta ? 'alerta-roja' : '';
-            // Verificamos el rol para mostrar el texto correcto
             const tipoUsuario = p.rol === 'docente' ? 'Docente' : 'Alumno'; 
             
             content.innerHTML += `
