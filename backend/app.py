@@ -26,5 +26,9 @@ def index():
 def dashboard():
     return render_template('dashboard.html')
 
+@app.route('/libro/<int:id_libro>')
+def libro_detalle(id_libro):
+    return render_template('book_details.html', id_libro=id_libro)
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

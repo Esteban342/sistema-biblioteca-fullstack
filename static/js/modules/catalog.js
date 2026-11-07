@@ -7,6 +7,13 @@ export async function cargarLibros(user) {
         const libros = await api.getLibros();
         const grid = document.getElementById('booksGrid');
         
+        // Si el backend devuelve un error, lo mostramos en consola y evitamos que explote
+        if (!Array.isArray(libros)) {
+            console.error("Error del servidor:", libros.error);
+            grid.innerHTML = `<p style="color: red; grid-column: 1/-1;">Error al cargar el catálogo. Revisa la consola (F12).</p>`;
+            return;
+        }
+
         grid.innerHTML = '';
 
         libros.forEach(libro => {
@@ -14,9 +21,24 @@ export async function cargarLibros(user) {
             const stockClass = hasStock ? 'stock-ok' : 'stock-no';
             const stockText = hasStock ? `Stock: ${libro.stock}` : 'Sin Stock';
             
+            // Si el libro no tiene imagen, usamos una por defecto
+            const imagen = libro.imagen_url || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80';
+            
+            // Generar estrellas (ej. ★★★★☆)
+            const rating = libro.rating || 0;
+            const estrellasLlenas = Math.round(rating);
+            const estrellasVacias = 5 - estrellasLlenas;
+            const estrellasStr = '★'.repeat(estrellasLlenas) + '☆'.repeat(estrellasVacias);
+            
             const card = document.createElement('div');
             card.className = 'book-card';
             card.dataset.categoria = libro.categoria;
+
+             card.style.cursor = 'pointer';
+            card.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') return;
+                window.location.href = `/libro/${libro.id}`;
+            });
             
             let actionBtns = '';
             if (user.rol === 'admin') {
@@ -30,8 +52,17 @@ export async function cargarLibros(user) {
 
             card.innerHTML = `
                 <div>
+                    <!-- Aquí agregamos la portada del libro -->
+                    <div class="book-cover" style="background-image: url('${imagen}'); height: 180px; background-size: cover; background-position: center; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></div>
+                    
                     <div class="book-title">${libro.titulo}</div>
                     <div class="book-author">${libro.autor}</div>
+                    
+                    <!-- Aquí agregamos las estrellitas -->
+                    <div style="color: #f59e0b; font-size: 16px; margin-bottom: 8px;">
+                        ${estrellasStr} <span style="color: #64748b; font-size: 12px; margin-left: 4px;">(${rating})</span>
+                    </div>
+
                     <div style="font-size:11px; color:#94a3b8; margin-bottom:5px;">${libro.categoria}</div>
                     <div class="book-stock ${stockClass}">${stockText}</div>
                 </div>
@@ -40,9 +71,7 @@ export async function cargarLibros(user) {
             grid.appendChild(card);
         });
 
-        // Llenar el filtro de categorías
         llenarCategorias(libros);
-
         asignarEventosBotones(user);
 
     } catch (error) { 

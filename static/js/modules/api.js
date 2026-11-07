@@ -56,5 +56,17 @@ export const api = {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
         });
         return await res.json();
-    }
+    },
+        getLibroDetalle: async (id_libro) => {
+        const res = await fetch(`${API_URL}/libros/${id_libro}`);
+        return await res.json();
+    },
+    crearResena: async (data) => {
+        const res = await fetch(`${API_URL}/resenas`, {
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify(data)
+        });
+        return await res.json();
+    },
 };

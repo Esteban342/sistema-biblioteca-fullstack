@@ -1,0 +1,125 @@
+.details-container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+.book-info-panel {
+    background: var(--bg-card);
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+
+.book-info-panel img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.book-info-panel h1 {
+    font-family: 'Playfair Display', serif;
+    color: var(--primary);
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.book-info-panel .author {
+    color: var(--text-muted);
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.book-info-panel .synopsis {
+    line-height: 1.6;
+    color: var(--text-main);
+    margin-bottom: 25px;
+}
+
+.reviews-panel {
+    background: var(--bg-card);
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+
+.reviews-panel h2 {
+    font-family: 'Playfair Display', serif;
+    color: var(--primary);
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+}
+
+.review-item {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.review-item .review-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.review-item .stars {
+    color: #f59e0b;
+}
+
+.review-item .comment {
+    color: var(--text-main);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Formulario de Reseña */
+.add-review-form {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px dashed var(--border);
+}
+
+.add-review-form h3 {
+    margin-bottom: 15px;
+    color: var(--primary);
+}
+
+.star-rating {
+    display: flex;
+    gap: 5px;
+    font-size: 24px;
+    color: #cbd5e1;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+.star-rating i.active {
+    color: #f59e0b;
+}
+
+.add-review-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    height: 80px;
+    margin-bottom: 15px;
+    resize: vertical;
+}
+
+@media (max-width: 768px) {
+    .details-container {
+        grid-template-columns: 1fr;
+    }
+}

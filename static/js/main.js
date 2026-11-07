@@ -4,6 +4,7 @@ import { cargarLibros } from './modules/catalog.js';
 import { ui } from './modules/ui.js';
 import { api } from './modules/api.js';
 import { inicializarFiltros } from './modules/filters.js';
+import { cargarDetalleLibro } from './modules/book_details.js';
 
 // 1. Inicializamos la autenticación (Login)
 inicializarAuth();
@@ -95,7 +96,6 @@ if (window.location.pathname === '/dashboard') {
     }
 }
 
-// ================= FUNCIONES DE ADMIN Y NOTIFICACIONES =================
 
 async function checarNotificacionesAlumno(user) {
     try {
@@ -218,4 +218,16 @@ window.guardarLibro = async () => {
     ui.cerrarModal('modalAdmin');
     const currentUser = JSON.parse(sessionStorage.getItem('user'));
     cargarLibros(currentUser);
+
 };
+    // 3. Inicializar la vista de Detalle del Libro
+if (window.location.pathname.startsWith('/libro/')) {
+    const userStr = sessionStorage.getItem('user');
+    if (!userStr) {
+        window.location.href = '/';
+    } else {
+        // Extraemos el ID de la URL (ej. /libro/1 -> saca el 1)
+        const id_libro = window.location.pathname.split('/').pop();
+        cargarDetalleLibro(id_libro);
+    }
+}

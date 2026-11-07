@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Libro - Biblioteca</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/static/css/book_details.css">
+</head>
+<body>
+    <!-- Header simplificado con botón de regreso -->
+    <header class="dashboard-header" style="justify-content: flex-start; gap: 20px;">
+        <button class="btn-filter" onclick="window.location.href='/dashboard'" style="padding: 10px 15px; height: auto;">
+            <i class="fa-solid fa-arrow-left"></i> Volver al Catálogo
+        </button>
+        <div class="logo-area">
+            <i class="fa-solid fa-book-open"></i>
+            <span class="logo-text">Biblioteca</span>
+        </div>
+    </header>
+
+    <!-- Contenedor principal -->
+    <main class="details-container" id="detailsContainer">
+        <p style="text-align: center; margin-top: 50px;">Cargando información del libro...</p>
+    </main>
+
+    <!-- Llamamos a main.js que buscará el archivo book_details.js automáticamente -->
+    <script type="module" src="/static/js/main.js"></script>
+</body>
+</html>
