@@ -17,11 +17,12 @@
 
 .book-info-panel img {
     width: 100%;
-    max-height: 400px;
-    object-fit: cover;
+    max-height: 500px;
+    object-fit: contain; 
     border-radius: 8px;
     margin-bottom: 20px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    background-color: #f8fafc; 
 }
 
 .book-info-panel h1 {
@@ -123,3 +124,27 @@
         grid-template-columns: 1fr;
     }
 }
+
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    padding: 15px 40px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    gap: 20px;
+}
+.btn-back {
+    background: transparent;
+    border: 1px solid var(--border);
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s;
+}
+.btn-back:hover { 
+    background: #f1f5f9; }
