@@ -7,62 +7,43 @@ export async function cargarLibros(user) {
         const libros = await api.getLibros();
         const grid = document.getElementById('booksGrid');
         
-        // Si el backend devuelve un error, lo mostramos en consola y evitamos que explote
-        if (!Array.isArray(libros)) {
-            console.error("Error del servidor:", libros.error);
-            grid.innerHTML = `<p style="color: red; grid-column: 1/-1;">Error al cargar el catálogo. Revisa la consola (F12).</p>`;
-            return;
-        }
-
+        if (!Array.isArray(libros)) return;
         grid.innerHTML = '';
 
         libros.forEach(libro => {
             const hasStock = libro.stock > 0;
             const stockClass = hasStock ? 'stock-ok' : 'stock-no';
             const stockText = hasStock ? `Stock: ${libro.stock}` : 'Sin Stock';
-            
-            // Si el libro no tiene imagen, usamos una por defecto
             const imagen = libro.imagen_url || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80';
             
-            // Generar estrellas (ej. ★★★★☆)
             const rating = libro.rating || 0;
-            const estrellasLlenas = Math.round(rating);
-            const estrellasVacias = 5 - estrellasLlenas;
-            const estrellasStr = '★'.repeat(estrellasLlenas) + '☆'.repeat(estrellasVacias);
+            const estrellasStr = '★'.repeat(Math.round(rating)) + '☆'.repeat(5 - Math.round(rating));
             
             const card = document.createElement('div');
             card.className = 'book-card';
+            card.style.cursor = 'pointer';
             card.dataset.categoria = libro.categoria;
-
-             card.style.cursor = 'pointer';
-            card.addEventListener('click', (e) => {
-                if (e.target.tagName === 'BUTTON') return;
+            
+            card.addEventListener('click', () => {
                 window.location.href = `/libro/${libro.id}`;
             });
-            
+
             let actionBtns = '';
             if (user.rol === 'admin') {
-                actionBtns = `<button class="btn-action btn-solid btn-editar" data-titulo="${libro.titulo}" data-autor="${libro.autor}" data-sinopsis="${libro.sinopsis}" data-categoria="${libro.categoria}" data-stock="${libro.stock}">Editar Libro</button>`;
+                // Solo el admin ve el botón de editar directo en la tarjeta
+                 actionBtns = `<button class="btn-action btn-solid btn-editar" onclick="event.stopPropagation();" data-id="${libro.id}" data-titulo="${libro.titulo}" data-autor="${libro.autor}" data-sinopsis="${libro.sinopsis}" data-categoria="${libro.categoria}" data-stock="${libro.stock}" data-imagen="${libro.imagen_url || ''}">Editar</button>`;
             } else {
-                actionBtns = `
-                    <button class="btn-action btn-outline btn-ver-sinopsis" data-titulo="${libro.titulo}" data-sinopsis="${libro.sinopsis}">Sinopsis</button>
-                    <button class="btn-action btn-solid btn-solicitar" ${!hasStock ? 'disabled' : ''} data-titulo="${libro.titulo}">${hasStock ? 'Solicitar' : 'Agotado'}</button>
-                `;
+                // El alumno solo ve un texto que lo invita a entrar
+                actionBtns = `<div style="text-align: center; color: #3b82f6; font-weight: 600; font-size: 14px; margin-top: 10px;">Ver detalles <i class="fa-solid fa-arrow-right"></i></div>`;
             }
 
             card.innerHTML = `
                 <div>
-                    <!-- Aquí agregamos la portada del libro -->
-                    <div class="book-cover" style="background-image: url('${imagen}'); height: 180px; background-size: cover; background-position: center; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></div>
-                    
-                    <div class="book-title">${libro.titulo}</div>
+                    <div style="background-image: url('${imagen}'); height: 240px; background-size: contain; background-repeat: no-repeat; background-position: center; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); background-color: #f8fafc;"></div>                    <div class="book-title">${libro.titulo}</div>
                     <div class="book-author">${libro.autor}</div>
-                    
-                    <!-- Aquí agregamos las estrellitas -->
                     <div style="color: #f59e0b; font-size: 16px; margin-bottom: 8px;">
                         ${estrellasStr} <span style="color: #64748b; font-size: 12px; margin-left: 4px;">(${rating})</span>
                     </div>
-
                     <div style="font-size:11px; color:#94a3b8; margin-bottom:5px;">${libro.categoria}</div>
                     <div class="book-stock ${stockClass}">${stockText}</div>
                 </div>
@@ -72,44 +53,26 @@ export async function cargarLibros(user) {
         });
 
         llenarCategorias(libros);
-        asignarEventosBotones(user);
+        asignarEventosBotones();
 
     } catch (error) { 
         console.error("Error al cargar libros:", error); 
     }
 }
 
-function asignarEventosBotones(user) {
-    document.querySelectorAll('.btn-ver-sinopsis').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            ui.verSinopsis(e.target.dataset.titulo, e.target.dataset.sinopsis);
-        });
-    });
-
-    document.querySelectorAll('.btn-solicitar').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const titulo = e.target.dataset.titulo;
-            document.getElementById('solicitarLibroNombre').textContent = titulo;
-            document.getElementById('solicitarLibroNombre').dataset.titulo = titulo;
-            
-            const hoy = new Date();
-            const proxSemana = new Date();
-            proxSemana.setDate(hoy.getDate() + 7);
-            
-            document.getElementById('solicitarFechaHoy').textContent = hoy.toLocaleDateString('es-ES');
-            document.getElementById('inputFechaEntrega').value = proxSemana.toISOString().split('T')[0];
-            ui.abrirModal('modalSolicitar');
-        });
-    });
-
+function asignarEventosBotones() {
     document.querySelectorAll('.btn-editar').forEach(btn => {
         btn.addEventListener('click', (e) => {
+            // Pasamos los datos al modal
             document.getElementById('editTituloOriginal').value = e.target.dataset.titulo;
+            document.getElementById('editTituloOriginal').dataset.id = e.target.dataset.id; 
             document.getElementById('editTitulo').value = e.target.dataset.titulo;
             document.getElementById('editAutor').value = e.target.dataset.autor;
             document.getElementById('editSinopsis').value = e.target.dataset.sinopsis;
             document.getElementById('editCategoria').value = e.target.dataset.categoria;
             document.getElementById('editStock').value = e.target.dataset.stock;
+            // Nuevo campo de imagen
+            document.getElementById('editImagen').value = e.target.dataset.imagen;
             ui.abrirModal('modalEditarLibro');
         });
     });

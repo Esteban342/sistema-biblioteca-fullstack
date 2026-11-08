@@ -21,6 +21,16 @@ if (window.location.pathname === '/dashboard') {
         document.getElementById('userName').textContent = currentUser.nombre_completo;
         document.getElementById('userRole').textContent = currentUser.rol.toUpperCase();
 
+        // AGREGADO: Detectar si venimos a editar desde la vista de detalles
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('editar')) {
+            const idEditar = urlParams.get('editar');
+            setTimeout(() => {
+                const btn = document.querySelector(`.btn-editar[data-id="${idEditar}"]`);
+                if (btn) btn.click();
+            }, 800); 
+        }
+
         // Configurar vista según el rol
         if (currentUser.rol === 'admin') {
             document.getElementById('adminControls').style.display = 'flex';
@@ -72,15 +82,16 @@ if (window.location.pathname === '/dashboard') {
             else alert("Error: " + res.error);
         });
 
-        // Evento de Edición de Libro
+        // Evento de Edición de Libro 
         document.getElementById('btnGuardarEdicion').addEventListener('click', async () => {
             const payload = {
-                titulo_original: document.getElementById('editTituloOriginal').value,
+                id_libro: document.getElementById('editTituloOriginal').dataset.id, 
                 nuevo_titulo: document.getElementById('editTitulo').value,
                 nuevo_autor: document.getElementById('editAutor').value,
                 nueva_sinopsis: document.getElementById('editSinopsis').value,
                 nueva_categoria: document.getElementById('editCategoria').value,
-                nuevo_stock: parseInt(document.getElementById('editStock').value)
+                nuevo_stock: parseInt(document.getElementById('editStock').value),
+                nueva_imagen: document.getElementById('editImagen').value 
             };
             await api.editarLibro(payload);
             ui.cerrarModal('modalEditarLibro');
@@ -94,9 +105,9 @@ if (window.location.pathname === '/dashboard') {
             document.getElementById('btnAgregarLibro').addEventListener('click', () => abrirAdminModal('agregar'));
         }
     }
-}
+} 
 
-
+//Funciones Globales
 async function checarNotificacionesAlumno(user) {
     try {
         const solicitudes = await api.getNotificaciones(user.id_usuario);
@@ -176,13 +187,17 @@ async function abrirAdminModal(tipo) {
             `;
         });
     } else {
-        title.textContent = 'Agregar Libro';
+                title.textContent = 'Agregar Libro';
         content.innerHTML = `
             <input type="text" id="addTitulo" placeholder="Título" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #cbd5e1; border-radius:6px;">
             <input type="text" id="addAutor" placeholder="Autor" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #cbd5e1; border-radius:6px;">
             <input type="text" id="addCategoria" placeholder="Categoría" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #cbd5e1; border-radius:6px;">
             <textarea id="addSinopsis" placeholder="Sinopsis" style="width:100%; padding:10px; margin-bottom:10px; height:80px; border:1px solid #cbd5e1; border-radius:6px;"></textarea>
             <input type="number" id="addStock" placeholder="Stock" value="1" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #cbd5e1; border-radius:6px;">
+            
+            <!-- NUEVO CAMPO DE IMAGEN -->
+            <input type="text" id="addImagen" placeholder="URL de la Portada (Opcional)" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #cbd5e1; border-radius:6px;">
+            
             <button class="btn-primary" onclick="window.guardarLibro()">Guardar Libro</button>
         `;
     }
@@ -210,7 +225,8 @@ window.guardarLibro = async () => {
         autor: document.getElementById('addAutor').value,
         categoria: document.getElementById('addCategoria').value,
         sinopsis: document.getElementById('addSinopsis').value,
-        stock: parseInt(document.getElementById('addStock').value)
+        stock: parseInt(document.getElementById('addStock').value),
+        imagen_url: document.getElementById('addImagen').value
     };
     if(!payload.titulo || !payload.autor) return alert("Completa los campos");
     
@@ -218,15 +234,14 @@ window.guardarLibro = async () => {
     ui.cerrarModal('modalAdmin');
     const currentUser = JSON.parse(sessionStorage.getItem('user'));
     cargarLibros(currentUser);
-
 };
-    // 3. Inicializar la vista de Detalle del Libro
+
+// 3. Inicializar la vista de Detalle del Libro
 if (window.location.pathname.startsWith('/libro/')) {
     const userStr = sessionStorage.getItem('user');
     if (!userStr) {
         window.location.href = '/';
     } else {
-        // Extraemos el ID de la URL (ej. /libro/1 -> saca el 1)
         const id_libro = window.location.pathname.split('/').pop();
         cargarDetalleLibro(id_libro);
     }

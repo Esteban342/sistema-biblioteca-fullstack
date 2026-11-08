@@ -12,6 +12,7 @@ export async function cargarDetalleLibro(id_libro) {
 
         const imagen = libro.imagen_url || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80';
         const hasStock = libro.stock > 0;
+        const esAdmin = JSON.parse(sessionStorage.getItem('user')).rol === 'admin';
         
         // Dibujar la información del libro y las reseñas
         container.innerHTML = `
@@ -23,7 +24,12 @@ export async function cargarDetalleLibro(id_libro) {
                 <div style="font-size: 18px; font-weight: bold; margin-bottom: 20px;" class="${hasStock ? 'stock-ok' : 'stock-no'}">
                     ${hasStock ? `Disponible (${libro.stock} en stock)` : 'Agotado temporalmente'}
                 </div>
-                <button class="btn-primary" ${!hasStock ? 'disabled' : ''} onclick="alert('Para solicitar el préstamo, regresa al catálogo.')">Solicitar Préstamo</button>
+                
+                <!-- BOTÓN QUE CAMBIA SEGÚN EL ROL -->
+                ${esAdmin 
+                ? `<button class="btn-primary" onclick="window.location.href='/dashboard?editar=${libro.id}'">Editar Libro (Admin)</button>`
+                : `<button class="btn-primary" ${!hasStock ? 'disabled' : ''} onclick="alert('Solicitar desde aquí estará disponible pronto.')">Solicitar Préstamo</button>`
+                }
             </div>
             
             <div class="reviews-panel">
@@ -32,18 +38,21 @@ export async function cargarDetalleLibro(id_libro) {
                     ${libro.resenas.length === 0 ? '<p>No hay reseñas todavía. ¡Sé el primero en opinar!</p>' : ''}
                 </div>
                 
-                <div class="add-review-form">
-                    <h3>Deja tu reseña</h3>
-                    <div class="star-rating" id="starRating">
-                        <i class="fa-solid fa-star" data-val="1"></i>
-                        <i class="fa-solid fa-star" data-val="2"></i>
-                        <i class="fa-solid fa-star" data-val="3"></i>
-                        <i class="fa-solid fa-star" data-val="4"></i>
-                        <i class="fa-solid fa-star" data-val="5"></i>
+                <!-- FORMULARIO DE RESEÑA OCULTO PARA EL ADMIN -->
+                ${!esAdmin ? `
+                    <div class="add-review-form">
+                        <h3>Deja tu reseña</h3>
+                        <div class="star-rating" id="starRating">
+                            <i class="fa-solid fa-star" data-val="1"></i>
+                            <i class="fa-solid fa-star" data-val="2"></i>
+                            <i class="fa-solid fa-star" data-val="3"></i>
+                            <i class="fa-solid fa-star" data-val="4"></i>
+                            <i class="fa-solid fa-star" data-val="5"></i>
+                        </div>
+                        <textarea id="reviewComment" placeholder="¿Qué te pareció este libro?"></textarea>
+                        <button class="btn-primary" id="btnSubmitReview">Enviar Reseña</button>
                     </div>
-                    <textarea id="reviewComment" placeholder="¿Qué te pareció este libro?"></textarea>
-                    <button class="btn-primary" id="btnSubmitReview">Enviar Reseña</button>
-                </div>
+                ` : '<p style="color: #64748b; margin-top: 20px;">Los administradores no pueden dejar reseñas.</p>'}
             </div>
         `;
 
@@ -68,47 +77,54 @@ export async function cargarDetalleLibro(id_libro) {
             });
         }
 
-        // Lógica para seleccionar estrellas
+        // --- LÓGICA PARA SELECCIONAR ESTRELLAS (Solo si no es Admin) ---
         let selectedRating = 0;
-        const stars = document.querySelectorAll('#starRating i');
-        stars.forEach(star => {
-            star.addEventListener('click', (e) => {
-                selectedRating = parseInt(e.target.dataset.val);
-                stars.forEach(s => {
-                    if (parseInt(s.dataset.val) <= selectedRating) {
-                        s.classList.add('active');
-                    } else {
-                        s.classList.remove('active');
-                    }
+        const starRatingContainer = document.getElementById('starRating');
+        
+        if (starRatingContainer) {
+            const stars = document.querySelectorAll('#starRating i');
+            stars.forEach(star => {
+                star.addEventListener('click', (e) => {
+                    selectedRating = parseInt(e.target.dataset.val);
+                    stars.forEach(s => {
+                        if (parseInt(s.dataset.val) <= selectedRating) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
                 });
             });
-        });
+        }
 
-        // Enviar la reseña
-        document.getElementById('btnSubmitReview').addEventListener('click', async () => {
-            const comentario = document.getElementById('reviewComment').value;
-            const userStr = sessionStorage.getItem('user');
-            
-            if (!userStr) return alert("Debes iniciar sesión.");
-            if (selectedRating === 0) return alert("Por favor, selecciona una calificación con las estrellas.");
-            if (!comentario.trim()) return alert("Por favor, escribe un comentario.");
+        // --- ENVIAR RESEÑA (Solo si no es Admin) ---
+        const btnSubmitReview = document.getElementById('btnSubmitReview');
+        if (btnSubmitReview) {
+            btnSubmitReview.addEventListener('click', async () => {
+                const comentario = document.getElementById('reviewComment').value;
+                const userStr = sessionStorage.getItem('user');
+                
+                if (!userStr) return alert("Debes iniciar sesión.");
+                if (selectedRating === 0) return alert("Por favor, selecciona una calificación con las estrellas.");
+                if (!comentario.trim()) return alert("Por favor, escribe un comentario.");
 
-            const currentUser = JSON.parse(userStr);
-            
-            const res = await api.crearResena({
-                id_libro: libro.id,
-                id_usuario: currentUser.id_usuario,
-                calificacion: selectedRating,
-                comentario: comentario
+                const currentUser = JSON.parse(userStr);
+                
+                const res = await api.crearResena({
+                    id_libro: libro.id,
+                    id_usuario: currentUser.id_usuario,
+                    calificacion: selectedRating,
+                    comentario: comentario
+                });
+
+                if (res.success) {
+                    alert("¡Reseña guardada con éxito!");
+                    cargarDetalleLibro(id_libro); // Recargar la página
+                } else {
+                    alert("Error: " + res.error);
+                }
             });
-
-            if (res.success) {
-                alert("¡Reseña guardada con éxito!");
-                cargarDetalleLibro(id_libro); // Recargar la página
-            } else {
-                alert("Error: " + res.error);
-            }
-        });
+        }
 
     } catch (error) {
         console.error(error);

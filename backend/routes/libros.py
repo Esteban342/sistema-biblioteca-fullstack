@@ -47,8 +47,12 @@ def agregar_libro():
         conn = get_db_connection()
         cur = conn.cursor()
         
-        cur.execute("INSERT INTO libros (titulo_libro, autor, temas, clasificacion) VALUES (%s, %s, %s, %s) RETURNING id_libro", (data['titulo'], data['autor'], data['sinopsis'], data['categoria']))
+        cur.execute("""
+            INSERT INTO libros (titulo_libro, autor, temas, clasificacion, imagen_url) 
+            VALUES (%s, %s, %s, %s, %s) RETURNING id_libro
+        """, (data['titulo'], data['autor'], data['sinopsis'], data['categoria'], data.get('imagen_url', '')))
         id_libro = cur.fetchone()[0]
+        
         cur.execute("INSERT INTO inventario (cantidad, id_libro) VALUES (%s, %s)", (data['stock'], id_libro))
         
         conn.commit()
@@ -67,14 +71,11 @@ def editar_libro():
         cur = conn.cursor()
         
         cur.execute("""
-            UPDATE libros SET titulo_libro = %s, autor = %s, temas = %s, clasificacion = %s
-            WHERE id_libro = (SELECT id_libro FROM libros WHERE titulo_libro = %s)
-        """, (data['nuevo_titulo'], data['nuevo_autor'], data['nueva_sinopsis'], data['nueva_categoria'], data['titulo_original']))
+            UPDATE libros SET titulo_libro = %s, autor = %s, temas = %s, clasificacion = %s, imagen_url = %s
+            WHERE id_libro = %s
+        """, (data['nuevo_titulo'], data['nuevo_autor'], data['nueva_sinopsis'], data['nueva_categoria'], data['nueva_imagen'], data['id_libro']))
         
-        cur.execute("""
-            UPDATE inventario SET cantidad = %s 
-            WHERE id_libro = (SELECT id_libro FROM libros WHERE titulo_libro = %s)
-        """, (data['nuevo_stock'], data['nuevo_titulo']))
+        cur.execute("UPDATE inventario SET cantidad = %s WHERE id_libro = %s", (data['nuevo_stock'], data['id_libro']))
         
         conn.commit()
         cur.close()
@@ -152,6 +153,8 @@ def agregar_resena():
         cur.execute("""
             INSERT INTO resenas (id_libro, id_usuario, calificacion, comentario)
             VALUES (%s, %s, %s, %s)
+            ON CONFLICT (id_libro, id_usuario) 
+            DO UPDATE SET calificacion = EXCLUDED.calificacion, comentario = EXCLUDED.comentario, fecha = CURRENT_TIMESTAMP
         """, (data['id_libro'], data['id_usuario'], data['calificacion'], data['comentario']))
         
         conn.commit()
